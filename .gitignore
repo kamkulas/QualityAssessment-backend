@@ -1,4 +1,5 @@
 data_files
 *.pyc
 .idea
-matlab
+matlab/*
+!matlab/.gitkeep
