@@ -28,6 +28,7 @@ class Query(graphene.ObjectType):
             else:
                 calculator = Calculator(loop)
                 indexes = calculator.calculate_all()
+                min_values = indexes.get('min_values', None)
                 loop.ise = indexes['ise']
                 loop.iae = indexes['iae']
                 loop.qe = indexes['qe']
@@ -39,6 +40,11 @@ class Query(graphene.ObjectType):
                 loop.h3 = indexes['h3']
                 loop.cr1 = indexes['cr1']
                 loop.cr2 = indexes['cr2']
+                loop.gsig = indexes['gsig']
+                loop.salf = indexes['salf']
+                loop.sgam = indexes['sgam']
+                loop.lb = indexes['lb']
+                loop.rsig = indexes['rsig']
                 loop.gauss = indexes['gauss']
                 loop.levy = indexes['levy']
                 loop.laplace = indexes['laplace']
@@ -54,6 +60,16 @@ class Query(graphene.ObjectType):
                 loop.haa = [item for item in indexes['haa']]
                 loop.xp = [item[0] for item in indexes['xp']]
                 loop.yp = [item[0] for item in indexes['yp']]
+
+                min_attrs = ['minIse', 'minIae', 'minQe', 'minGsig', 'minSgam', 'minLb',
+                             'minRsig', 'minHre', 'minHde', 'minCr1', 'minCr2']
+                if min_values:
+                    for attr in min_attrs:
+                        setattr(loop, attr, min_values[attr])
+                else:
+                    for attr in min_attrs:
+                        setattr(loop, attr, None)
+
                 loop.calculated = True
                 loop.save()
                 return loop

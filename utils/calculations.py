@@ -5,7 +5,7 @@ from scipy.stats import norm
 from statistics import mean, stdev
 from oct2py import octave
 from decimal import Decimal
-
+import sys
 
 LAMBDA = Decimal(0.2)
 TP = 5
@@ -18,33 +18,33 @@ class Calculator:
         for i in range(len(self.loop.cv)):
             self.error.append(self.loop.cv[i] - self.loop.spa[i])
 
-    def int_indexes(self):
-        n = len(self.error)
+    def int_indexes(self, mv, error):
+        n = len(error)
         ise = 0
         iae = 0
         qe = 0
         for i in range(n):
-            ise += Decimal(pow(self.error[i], 2))
-            iae += Decimal(abs(self.error[i]))
-            qe += Decimal(pow(self.error[i], 2)) + LAMBDA*Decimal(pow(self.loop.mv[i], 2))
+            ise += Decimal(pow(error[i], 2))
+            iae += Decimal(abs(error[i]))
+            qe += Decimal(pow(error[i], 2)) + LAMBDA*Decimal(pow(mv[i], 2))
 
         ise /= n
         iae /= n
         qe /= n
         return {'ise': ise, 'iae': iae, 'qe': qe}
 
-    def stat_indexes(self):
+    def stat_indexes(self, loop_error):
         octave.addpath(os.path.abspath('matlab/FitFunc'))
         octave.addpath(os.path.abspath('matlab/stbl'))
         octave.addpath(os.path.abspath('matlab/matlab/LIBRA'))
         octave.eval('pkg load statistics')
 
-        error = [float(err) for err in self.error]
+        error = [float(err) for err in loop_error]
 
         nbins = 140
         d_std = 3.0
-        mu = float(mean(self.error))
-        st = float(stdev(self.error))
+        mu = float(mean(loop_error))
+        st = float(stdev(loop_error))
 
         # dopasowanie rozkladu Gaussa dla uchybu
         xmin = mu - d_std * st
@@ -61,7 +61,7 @@ class Calculator:
         rangex = xmax - xmin
         binwidth = rangex / nbins
         row = 0
-        for item in self.error:
+        for item in loop_error:
             row += item > 0
         rr1n = row * (rr1 * binwidth)
         rr1 = norm.pdf(ax1, mu, st)
@@ -98,16 +98,21 @@ class Calculator:
         histY = nn
         KK = len(nn)
 
-        return {'gauss': [Decimal(g) for g in gauss],
+        return {'gsig': st,
+                'salf': Salf,
+                'sgam': Sgam,
+                'lb': Lb,
+                'rsig': Rsig,
+                'gauss': [Decimal(g) for g in gauss],
                 'levy': [Decimal(l) for l in levy],
                 'laplace': [Decimal(l) for l in laplace],
                 'huber': [Decimal(h) for h in huber],
                 'histX': [Decimal(float(x)) for x in histX],
                 'histY': [Decimal(float(y)) for y in histY]}
 
-    def entrophy(self):
+    def entrophy(self, loop_error):
         nbins = 400
-        error = [float(err) for err in self.error]
+        error = [float(err) for err in loop_error]
         xmin = min(error)
         xmax = max(error)
         dx = (xmax - xmin) / nbins
@@ -147,17 +152,17 @@ class Calculator:
         CS = MM/S
         return np.mean(CS)
 
-    def hurst(self):
+    def hurst(self, loop_error):
         octave.addpath(os.path.abspath('matlab/hurst'))
         d = 10
         dmin = d
-        N = len(self.error)
+        N = len(loop_error)
         N0 = int(floor(0.99*N))
         dv = np.zeros((N-N0+1, 1))
         for i in range(N0, N+1):
             dv[i - N0] = len(self._divisors(i, dmin))
         OptN = N0 + np.argmax(dv)
-        x = [float(item) for item in self.error[0:OptN]]
+        x = [float(item) for item in loop_error[0:OptN]]
         d = self._divisors(OptN, dmin)
         N = len(d)
         RSe = np.zeros((N, 1))
@@ -247,21 +252,90 @@ class Calculator:
 
     def calculate_all(self):
         print('Calculating int indexes...')
-        int_indexes = self.int_indexes()
+        int_indexes = self.int_indexes(self.loop.mv, self.error)
         print('Int indexes done.')
         print('Calculating stat indexes...')
-        stat_indexes = self.stat_indexes()
+        stat_indexes = self.stat_indexes(self.error)
         print('Stat indexes done.')
         print('Calculating entrophy...')
-        entrophy = self.entrophy()
+        entrophy = self.entrophy(self.error)
         print('Entrophy done.')
         print('Calculating Hurst indices...')
-        hurst = self.hurst()
+        hurst = self.hurst(self.error)
         print('Hurst done.')
-        print('All done!')
-        return {
+        result = {
             **int_indexes,
             **stat_indexes,
             **entrophy,
             **hurst
         }
+
+        if len(self.loop.cv) >= 4000:
+            print('Will calculate minimum values...')
+            min_values = {
+              'minIse': sys.maxsize,
+              'minIae': sys.maxsize,
+              'minQe': sys.maxsize,
+              'minHre': sys.maxsize,
+              'minHde': sys.maxsize,
+              'minCr1': sys.maxsize,
+              'minCr2': sys.maxsize,
+              'minGsig': sys.maxsize,
+              'minSgam': sys.maxsize,
+              'minLb': sys.maxsize,
+              'minRsig': sys.maxsize,
+            }
+            iterations = len(self.loop.cv) // 2000
+            for i in range(0, iterations):
+                print(f'Iteration {i+1} of {iterations}')
+                tmp_err = self.error[2000*i:2000*(i+1)]
+                tmp_mv = self.loop.mv[2000*i:2000*(i+1)]
+
+                partial_int_indexes = self.int_indexes(tmp_mv, tmp_err)
+                tmp_ise = partial_int_indexes['ise']
+                tmp_iae = partial_int_indexes['iae']
+                tmp_qe = partial_int_indexes['qe']
+                print('Int indexes', tmp_ise, tmp_iae, tmp_qe)
+                if tmp_ise < min_values['minIse']:
+                    min_values['minIse'] = tmp_ise
+                if tmp_iae < min_values['minIae']:
+                    min_values['minIae'] = tmp_iae
+                if tmp_qe < min_values['minQe']:
+                    min_values['minQe'] = tmp_qe
+
+                partial_stat_indexes = self.stat_indexes(tmp_err)
+                tmp_gsig = partial_stat_indexes['gsig']
+                tmp_sgam = partial_stat_indexes['sgam']
+                tmp_lb = partial_stat_indexes['lb']
+                tmp_rsig = partial_stat_indexes['rsig']
+                print('Stat indexes', tmp_gsig, tmp_sgam, tmp_lb, tmp_rsig)
+                if tmp_gsig < min_values['minGsig']:
+                    min_values['minGsig'] = tmp_gsig
+                if tmp_sgam < min_values['minSgam']:
+                    min_values['minSgam'] = tmp_sgam
+                if tmp_lb < min_values['minLb']:
+                    min_values['minLb'] = tmp_lb
+                if tmp_rsig < min_values['minRsig']:
+                    min_values['minRsig'] = tmp_rsig
+
+                partial_entrophy = self.entrophy(tmp_err)
+                tmp_hre = partial_entrophy['hre']
+                tmp_hde = partial_entrophy['hde']
+                print('Entrophy', tmp_hre, tmp_hde)
+                if tmp_hre < min_values['minHre']:
+                    min_values['minHre'] = tmp_hre
+                if tmp_hde < min_values['minHde']:
+                    min_values['minHde'] = tmp_hde
+
+                partial_hurst = self.hurst(tmp_err)
+                tmp_cr1 = partial_hurst['cr1']
+                tmp_cr2 = partial_hurst['cr2']
+                print('Hurst', tmp_cr1, tmp_cr2)
+                if tmp_cr1 < min_values['minCr1']:
+                    min_values['minCr1'] = tmp_cr1
+                if tmp_cr2 < min_values['minCr2']:
+                    min_values['minCr2'] = tmp_cr2
+            print('Minimal values found: ', min_values)
+            result['min_values'] = min_values
+        print('All done!')
+        return result

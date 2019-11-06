@@ -1,11 +1,5 @@
 import openpyxl
 from decimal import Decimal
-# from math import pow, isnan, exp, log, log10, floor
-# import numpy as np
-# from scripy.stats import norm
-# from statistics import mean, stdev
-# from oct2py import octave
-from loop.models import Loop
 
 
 class Reader:
@@ -48,23 +42,3 @@ class Reader:
             loops.append(loop)
 
         return {'ok': True, 'loops': loops}
-
-
-class Assessment:
-    def __init__(self, id):
-        self.loop = Loop.objects.get(pk=id)
-        self.err = [cv-spa for cv in self.loop.cv for spa in self.loop.spa]
-        print(self.err)
-
-    # def stat_indexes(self):
-    #     octave.addpath('E:\\Documents\\Praca magisterska\\quality-assessment\\qualityassessment\\matlab\\FitFunc')
-    #     octave.addpath('E:\\Documents\\Praca magisterska\\quality-assessment\\qualityassessment\\matlab\\stbl')
-    #     octave.addpath('E:\\Documents\\Praca magisterska\\quality-assessment\\qualityassessment\\matlab\\matlab\\LIBRA')
-    #     octave.eval('pkg load statistics')
-    #
-    #     nbins = 140
-    #     d_std = 3.0
-    #     mu = mean(self.err)
-    #     self.mu = mu
-    #     st = stdev(self.err)
-    #     self.st = st
