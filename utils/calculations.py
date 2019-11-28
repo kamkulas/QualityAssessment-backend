@@ -278,8 +278,6 @@ class Calculator:
               'minQe': sys.maxsize,
               'minHre': sys.maxsize,
               'minHde': sys.maxsize,
-              'minCr1': sys.maxsize,
-              'minCr2': sys.maxsize,
               'minGsig': sys.maxsize,
               'minSgam': sys.maxsize,
               'minLb': sys.maxsize,
@@ -324,17 +322,8 @@ class Calculator:
                 print('Entrophy', tmp_hre, tmp_hde)
                 if tmp_hre < min_values['minHre']:
                     min_values['minHre'] = tmp_hre
-                if tmp_hde < min_values['minHde']:
-                    min_values['minHde'] = tmp_hde
-
-                partial_hurst = self.hurst(tmp_err)
-                tmp_cr1 = partial_hurst['cr1']
-                tmp_cr2 = partial_hurst['cr2']
-                print('Hurst', tmp_cr1, tmp_cr2)
-                if tmp_cr1 < min_values['minCr1']:
-                    min_values['minCr1'] = tmp_cr1
-                if tmp_cr2 < min_values['minCr2']:
-                    min_values['minCr2'] = tmp_cr2
+                if abs(tmp_hde) < min_values['minHde']:
+                    min_values['minHde'] = abs(tmp_hde)
             print('Minimal values found: ', min_values)
             result['min_values'] = min_values
         print('All done!')

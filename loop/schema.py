@@ -62,7 +62,7 @@ class Query(graphene.ObjectType):
                 loop.yp = [item[0] for item in indexes['yp']]
 
                 min_attrs = ['minIse', 'minIae', 'minQe', 'minGsig', 'minSgam', 'minLb',
-                             'minRsig', 'minHre', 'minHde', 'minCr1', 'minCr2']
+                             'minRsig', 'minHre', 'minHde']
                 if min_values:
                     for attr in min_attrs:
                         setattr(loop, attr, min_values[attr])
