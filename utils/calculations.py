@@ -181,8 +181,8 @@ class Calculator:
                 ERS[i] = (gamma(0.5*(n-1))*ratio) / (gamma(0.5*n)*np.sqrt(pi))
         
         QQ = len(RSe) - 1
-        for i in range(QQ, 0, -1):
-            if isnan(RSe[i]):
+        for i in range(QQ, -1, -1):
+            if np.isnan(RSe[i]):
                 RSe[i] = RSe[i+1]
         
         xx = np.log10(d)
