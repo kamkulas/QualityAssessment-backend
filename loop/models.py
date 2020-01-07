@@ -7,6 +7,7 @@ from system.models import System
 class Loop(models.Model):
     system = models.ForeignKey(System, on_delete=models.CASCADE, related_name='loops')
     name = models.CharField(max_length=50)
+    description = models.TextField(blank=True)
     calculated = models.BooleanField(default=False)
     mv = ArrayField(models.DecimalField(max_digits=15, decimal_places=4))
     ma = ArrayField(models.DecimalField(max_digits=15, decimal_places=4))
@@ -18,6 +19,10 @@ class Loop(models.Model):
     minIae = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
     qe = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
     minQe = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
+    skewness = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
+    minSkewness = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
+    kurtosis = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
+    minKurtosis = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
     hre = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
     minHre = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
     hde = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
@@ -52,5 +57,7 @@ class Loop(models.Model):
     haa = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
     xp = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
     yp = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
+    firstApproximation = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
+    secondApproximation = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
 
 

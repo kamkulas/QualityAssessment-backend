@@ -51,6 +51,8 @@ class Query(graphene.ObjectType):
                 loop.huber = indexes['huber']
                 loop.histX = indexes['histX']
                 loop.histY = indexes['histY']
+                loop.skewness = indexes['skewness']
+                loop.kurtosis = indexes['kurtosis']
                 loop.crossX1 = [item for item in indexes['crossx1']]
                 loop.crossY1 = [item for item in indexes['crossy1']]
                 loop.crossX2 = [item for item in indexes['crossx2']]
@@ -60,9 +62,11 @@ class Query(graphene.ObjectType):
                 loop.haa = [item for item in indexes['haa']]
                 loop.xp = [item[0] for item in indexes['xp']]
                 loop.yp = [item[0] for item in indexes['yp']]
+                loop.firstApproximation = list(indexes['first_approximation'])
+                loop.secondApproximation = list(indexes['second_approximation'])
 
                 min_attrs = ['minIse', 'minIae', 'minQe', 'minGsig', 'minSgam', 'minLb',
-                             'minRsig', 'minHre', 'minHde']
+                             'minRsig', 'minHre', 'minHde', 'minSkewness', 'minKurtosis']
                 if min_values:
                     for attr in min_attrs:
                         setattr(loop, attr, min_values[attr])
@@ -81,3 +85,24 @@ class Query(graphene.ObjectType):
             return loop.calculated
         else:
             return None
+
+
+class DescriptionMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int()
+        description = graphene.String()
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, id, description):
+        try:
+            loop = Loop.objects.get(pk=id)
+        except Loop.DoesNotExist:
+            return DescriptionMutation(ok=False)
+        loop.description = description
+        loop.save()
+        return DescriptionMutation(ok=True)
+
+
+class Mutation(graphene.ObjectType):
+    add_description = DescriptionMutation.Field()

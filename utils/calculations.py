@@ -1,7 +1,7 @@
 import numpy as np
 import os
-from math import pow, isnan, log, log10, floor, gamma, pi
-from scipy.stats import norm
+from math import pow, log, log10, floor, gamma, pi
+from scipy.stats import norm, skew, kurtosis
 from statistics import mean, stdev
 from oct2py import octave
 from decimal import Decimal
@@ -98,6 +98,10 @@ class Calculator:
         histY = nn
         KK = len(nn)
 
+        # kurtoza i skośność
+        skewness = skew(error)
+        kurt = kurtosis(error, fisher=True)
+
         return {'gsig': st,
                 'salf': Salf,
                 'sgam': Sgam,
@@ -108,7 +112,10 @@ class Calculator:
                 'laplace': [Decimal(l) for l in laplace],
                 'huber': [Decimal(h) for h in huber],
                 'histX': [Decimal(float(x)) for x in histX],
-                'histY': [Decimal(float(y)) for y in histY]}
+                'histY': [Decimal(float(y)) for y in histY],
+                'skewness': skewness,
+                'kurtosis': kurt
+                }
 
     def entrophy(self, loop_error):
         nbins = 400
@@ -204,7 +211,7 @@ class Calculator:
         C = np.vstack([C, np.concatenate([np.array(pval95), np.array([.95])])])
         C = np.vstack([C, np.array([0.5-np.exp(-7.19*np.log(np.log(L))+4.34), np.exp(-7.51*np.log(np.log(L))+4.58)+0.5, .99])])
         Htcorr = 0.5
-        
+
         w = np.array([Ht, Hal])
         yy = np.log10(RSe-ERS+ERSal)
         
@@ -250,6 +257,18 @@ class Calculator:
             'yp': yp,
         }
 
+    def approximation(self, cv, mv):
+        tmp_cv = [float(item) for item in cv]
+        tmp_mv = [float(item) for item in mv]
+        linear_approximation = np.polyfit(tmp_cv, tmp_mv, 1)
+        quadratic_approximation = np.polyfit(tmp_cv, tmp_mv, 2)
+        linear_plot = [(linear_approximation[0]*value + linear_approximation[1]) for value in tmp_cv]
+        quadratic_plot = [(quadratic_approximation[0]*value*value + quadratic_approximation[1]*value + quadratic_approximation[2]) for value in tmp_cv]
+        return {
+          'first_approximation': linear_plot,
+          'second_approximation': quadratic_plot
+        }
+
     def calculate_all(self):
         print('Calculating int indexes...')
         int_indexes = self.int_indexes(self.loop.mv, self.error)
@@ -263,25 +282,29 @@ class Calculator:
         print('Calculating Hurst indices...')
         hurst = self.hurst(self.error)
         print('Hurst done.')
+        approximation = self.approximation(self.loop.cv, self.loop.mv)
         result = {
             **int_indexes,
             **stat_indexes,
             **entrophy,
-            **hurst
+            **hurst,
+            **approximation,
         }
 
         if len(self.loop.cv) >= 4000:
             print('Will calculate minimum values...')
             min_values = {
-              'minIse': sys.maxsize,
-              'minIae': sys.maxsize,
-              'minQe': sys.maxsize,
-              'minHre': sys.maxsize,
-              'minHde': sys.maxsize,
-              'minGsig': sys.maxsize,
-              'minSgam': sys.maxsize,
-              'minLb': sys.maxsize,
-              'minRsig': sys.maxsize,
+                'minIse': sys.maxsize,
+                'minIae': sys.maxsize,
+                'minQe': sys.maxsize,
+                'minHre': sys.maxsize,
+                'minHde': sys.maxsize,
+                'minGsig': sys.maxsize,
+                'minSgam': sys.maxsize,
+                'minLb': sys.maxsize,
+                'minRsig': sys.maxsize,
+                'minSkewness': sys.maxsize,
+                'minKurtosis': sys.maxsize,
             }
             iterations = len(self.loop.cv) // 2000
             for i in range(0, iterations):
@@ -306,7 +329,10 @@ class Calculator:
                 tmp_sgam = partial_stat_indexes['sgam']
                 tmp_lb = partial_stat_indexes['lb']
                 tmp_rsig = partial_stat_indexes['rsig']
-                print('Stat indexes', tmp_gsig, tmp_sgam, tmp_lb, tmp_rsig)
+                tmp_kurtosis = partial_stat_indexes['kurtosis']
+                tmp_skewness = partial_stat_indexes['skewness']
+                print('Stat indexes', tmp_gsig, tmp_sgam, tmp_lb, tmp_rsig,
+                      tmp_kurtosis, tmp_skewness)
                 if tmp_gsig < min_values['minGsig']:
                     min_values['minGsig'] = tmp_gsig
                 if tmp_sgam < min_values['minSgam']:
@@ -315,6 +341,10 @@ class Calculator:
                     min_values['minLb'] = tmp_lb
                 if tmp_rsig < min_values['minRsig']:
                     min_values['minRsig'] = tmp_rsig
+                if abs(tmp_skewness) < min_values['minSkewness']:
+                    min_values['minSkewness'] = abs(tmp_skewness)
+                if abs(tmp_kurtosis) < min_values['minKurtosis']:
+                    min_values['minKurtosis'] = abs(tmp_kurtosis)
 
                 partial_entrophy = self.entrophy(tmp_err)
                 tmp_hre = partial_entrophy['hre']
