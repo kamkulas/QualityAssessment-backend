@@ -66,7 +66,7 @@ class Query(graphene.ObjectType):
                 loop.secondApproximation = list(indexes['second_approximation'])
 
                 min_attrs = ['minIse', 'minIae', 'minQe', 'minGsig', 'minSgam', 'minLb',
-                             'minRsig', 'minHre', 'minHde', 'minSkewness', 'minKurtosis']
+                             'minRsig', 'minHre', 'minHde']
                 if min_values:
                     for attr in min_attrs:
                         setattr(loop, attr, min_values[attr])

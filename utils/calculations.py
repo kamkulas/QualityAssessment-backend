@@ -303,8 +303,6 @@ class Calculator:
                 'minSgam': sys.maxsize,
                 'minLb': sys.maxsize,
                 'minRsig': sys.maxsize,
-                'minSkewness': sys.maxsize,
-                'minKurtosis': sys.maxsize,
             }
             iterations = len(self.loop.cv) // 2000
             for i in range(0, iterations):
@@ -329,10 +327,7 @@ class Calculator:
                 tmp_sgam = partial_stat_indexes['sgam']
                 tmp_lb = partial_stat_indexes['lb']
                 tmp_rsig = partial_stat_indexes['rsig']
-                tmp_kurtosis = partial_stat_indexes['kurtosis']
-                tmp_skewness = partial_stat_indexes['skewness']
-                print('Stat indexes', tmp_gsig, tmp_sgam, tmp_lb, tmp_rsig,
-                      tmp_kurtosis, tmp_skewness)
+                print('Stat indexes', tmp_gsig, tmp_sgam, tmp_lb, tmp_rsig)
                 if tmp_gsig < min_values['minGsig']:
                     min_values['minGsig'] = tmp_gsig
                 if tmp_sgam < min_values['minSgam']:
@@ -341,10 +336,6 @@ class Calculator:
                     min_values['minLb'] = tmp_lb
                 if tmp_rsig < min_values['minRsig']:
                     min_values['minRsig'] = tmp_rsig
-                if abs(tmp_skewness) < min_values['minSkewness']:
-                    min_values['minSkewness'] = abs(tmp_skewness)
-                if abs(tmp_kurtosis) < min_values['minKurtosis']:
-                    min_values['minKurtosis'] = abs(tmp_kurtosis)
 
                 partial_entrophy = self.entrophy(tmp_err)
                 tmp_hre = partial_entrophy['hre']
