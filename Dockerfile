@@ -4,6 +4,7 @@ RUN mkdir /code
 RUN mkdir /code/matlab
 WORKDIR /code
 RUN mkdir -p ~/data_files
+RUN mkdir -p ~/static
 COPY requirements.txt /code/
 COPY matlab/ /code/matlab
 RUN ls -la /code/matlab
