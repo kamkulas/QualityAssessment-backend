@@ -1,8 +1,98 @@
 {% load static %}
 <html>
+<head>
+    <title>Karta pętli {{ loop.name }}</title>
+</head>
 <body>
-    <p>Hi there!</p>
-    <p>It works!</p>
-    <img src="{% static 'plot.png' %}" alt="plot" />
+    <h2>Karta pętli {{ loop.name }}</h2>
+    <h3>{{ loop.description }}</h3>
+    <div style="display: flex;">
+        <div style="flex: 1;">
+            <h4>Int indexes</h4>
+            <div style="display: flex;">
+                <span style="flex: 1;">ISE:</span>
+                <span style="flex: 2;">{{ loop.ise }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">IAE:</span>
+                <span style="flex: 2;">{{ loop.iae }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">QE:</span>
+                <span style="flex: 2;">{{ loop.qe }}</span>
+            </div>
+            <h4>Stat indexes</h4>
+            <div style="display: flex;">
+                <span style="flex: 1;"><span style="font-size: 1.25em">&sigma;</span><sub>Gauss</sub>:</span>
+                <span style="flex: 2;">{{ loop.gsig }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1; font-size: 1.25em">&alpha;:</span>
+                <span style="flex: 2;">{{ loop.salf }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1; font-size: 1.25em">&gamma;:</span>
+                <span style="flex: 2;">{{ loop.sgam }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;"><span style="font-size: 1.25em">&beta;</span><sub>Laplace</sub>:</span>
+                <span style="flex: 2;">{{ loop.lb }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;"><span style="font-size: 1.25em">&sigma;</span><sub>Huber</sub>:</span>
+                <span style="flex: 2;">{{ loop.rsig }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">Skewness:</span>
+                <span style="flex: 2;">{{ loop.skewness }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">Kurtosis:</span>
+                <span style="flex: 2;">{{ loop.kurtosis }}</span>
+            </div>
+        </div>
+        <div style="flex: 1">
+            <h4>Entrophy</h4>
+            <div style="display: flex;">
+                <span style="flex: 1;">HRE:</span>
+                <span style="flex: 2;">{{ loop.hre }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">HDE:</span>
+                <span style="flex: 2;">{{ loop.hde }}</span>
+            </div>
+            <h4>Fractal indices</h4>
+            <div style="display: flex;">
+                <span style="flex: 1;">H0:</span>
+                <span style="flex: 2;">{{ loop.h0 }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">H1:</span>
+                <span style="flex: 2;">{{ loop.h1 }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">H2:</span>
+                <span style="flex: 2;">{{ loop.h2 }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">H3:</span>
+                <span style="flex: 2;">{{ loop.h3 }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">CR1:</span>
+                <span style="flex: 2;">{{ loop.cr1 }}</span>
+            </div>
+            <div style="display: flex;">
+                <span style="flex: 1;">CR2:</span>
+                <span style="flex: 2;">{{ loop.cr2 }}</span>
+            </div>
+        </div>
+    </div>
+    <div><img src="{% url 'trend_plot' id=loop.id %}" alt="trend"/></div>
+    <div><img src="{% url 'control_error_plot' id=loop.id %}" alt="control_error" /></div>
+    <div><img src="{% url 'error_plot' id=loop.id %}" alt="error" /></div>
+    <div><img src="{% url 'characteristics_plot' id=loop.id %}" alt="error" /></div>
+    <div><img src="{% url 'rs_plot' id=loop.id %}" alt="error" /></div>
+    <div><img src="{% url 'histogram_plot' id=loop.id %}" alt="error" /></div>
 </body>
 </html>
