@@ -13,5 +13,6 @@ RUN pip install -r requirements.txt
 RUN apt-get update
 RUN apt-get install -y octave
 RUN apt-get install -y octave-statistics
+RUN apt-get install -y octave-image
 
 COPY . /code/

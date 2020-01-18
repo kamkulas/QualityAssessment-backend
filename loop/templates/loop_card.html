@@ -91,8 +91,17 @@
     <div><img src="{% url 'trend_plot' id=loop.id %}" alt="trend"/></div>
     <div><img src="{% url 'control_error_plot' id=loop.id %}" alt="control_error" /></div>
     <div><img src="{% url 'error_plot' id=loop.id %}" alt="error" /></div>
-    <div><img src="{% url 'characteristics_plot' id=loop.id %}" alt="error" /></div>
-    <div><img src="{% url 'rs_plot' id=loop.id %}" alt="error" /></div>
-    <div><img src="{% url 'histogram_plot' id=loop.id %}" alt="error" /></div>
+    <div><img src="{% url 'characteristics_plot' id=loop.id %}" alt="characteristics" /></div>
+    <div><img src="{% url 'rs_plot' id=loop.id %}" alt="rs" /></div>
+    <div><img src="{% url 'histogram_plot' id=loop.id %}" alt="histogram" /></div>
+    <div><img src="{% url 'radar_plot' id=loop.id %}" alt="radar" /></div>
+    <div style="display: flex">
+        <div style="flex: 1">
+            <h4>Hausdorff dimension: </h4> {{ loop.hausDim }}
+        </div>
+        <div style="flex: 1">
+            <h4>Total score: </h4> {{ loop.score }}
+        </div>
+    </div>
 </body>
 </html>

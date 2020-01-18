@@ -57,5 +57,5 @@ class Loop(models.Model):
     yp = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
     firstApproximation = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
     secondApproximation = ArrayField(models.DecimalField(max_digits=15, decimal_places=4), blank=True, null=True)
-
-
+    hausDim = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)
+    score = models.DecimalField(max_digits=15, decimal_places=4, blank=True, null=True)

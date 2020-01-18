@@ -3,6 +3,7 @@ from graphene_django.types import DjangoObjectType
 
 from loop.models import Loop
 from utils.calculations import Calculator
+from utils.hausdorff import HausDim
 
 
 class LoopType(DjangoObjectType):
@@ -76,6 +77,12 @@ class Query(graphene.ObjectType):
 
                 loop.calculated = True
                 loop.save()
+
+                if len(loop.cv) >= 4000:
+                    haus_dim = HausDim.get_dim(loop)
+                    if haus_dim:
+                        loop.hausDim, loop.score = haus_dim
+                        loop.save()
                 return loop
         return None
 

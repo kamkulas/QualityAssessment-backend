@@ -19,7 +19,7 @@ from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
 from system.views import FileUpload
 from loop.views import loop_card, trend_plot, control_error_plot, error_plot, \
-    characteristics_plot, rs_plot, histogram_plot
+    characteristics_plot, rs_plot, histogram_plot, radar_plot
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +32,5 @@ urlpatterns = [
     path('characteristics_plot/<int:id>', characteristics_plot, name='characteristics_plot'),
     path('rs_plot/<int:id>', rs_plot, name='rs_plot'),
     path('histogram_plot/<int:id>', histogram_plot, name='histogram_plot'),
+    path('radar_plot/<int:id>', radar_plot, name='radar_plot'),
 ]

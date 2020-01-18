@@ -190,4 +190,39 @@ def histogram_plot(request, id):
 
 
 def radar_plot(request, id):
-    pass
+    try:
+        loop = Loop.objects.get(pk=id)
+    except Loop.DoesNotExist:
+        return HttpResponse(status=404)
+
+    categories = ['H0', 'HDE', 'HRE', 'QE', 'IAE', 'ISE', '\u03C3 Huber',
+                  '\u03B2 Laplace', '\u03B3', '\u03C3 Gauss', '\u03B1',
+                  'H3', 'H2', 'H1']
+    values = [loop.h0, np.abs(loop.minHde / loop.hde), loop.minHre / loop.hre,
+              loop.minQe / loop.qe, loop.minIae / loop.iae,
+              loop.minIse / loop.ise, loop.minRsig / loop.rsig,
+              loop.minLb / loop.lb, loop.minSgam / loop.sgam,
+              loop.minGsig / loop.gsig, loop.salf - 1, loop.h3, loop.h2,
+              loop.h1, loop.h0]
+    N = len(categories)
+    angles = [n / float(N) * 2 * np.pi for n in range(N)]
+    angles += angles[:1]
+    ax = plt.subplot(111, polar=True)
+    ax.set_rlabel_position(0)
+    ax.spines['polar'].set_color('gray')
+    ax.spines['polar'].set_alpha(0.4)
+    ax.grid(alpha=0.4)
+    plt.title('Radar')
+    ticks = [0.2, 0.4, 0.6, 0.8]
+    plt.xticks(angles[:-1], categories, color='grey', size=8)
+    plt.yticks(ticks, [str(item) for item in ticks], color='grey', size=7)
+    plt.ylim(0, 1)
+    ax.set_theta_zero_location('N')
+    ax.plot(angles, values, color='#ff9800')
+    ax.fill(angles, values, color='#ff9800', alpha=0.375)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close()
+    response = HttpResponse(buf.getvalue(), content_type='image/png')
+    return response
