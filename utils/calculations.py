@@ -42,7 +42,7 @@ class Calculator:
         error = [float(err) for err in loop_error]
 
         nbins = 140
-        d_std = 3.0
+        d_std = 2.0
         mu = float(mean(loop_error))
         st = float(stdev(loop_error))
 
@@ -50,8 +50,8 @@ class Calculator:
         xmin = mu - d_std * st
         xmax = mu + d_std * st
         stt = (xmax - xmin) / nbins
-        ax = np.arange(xmin, xmax, stt)
-        ax1 = np.arange(xmin, xmax, stt / 10)
+        ax = np.arange(xmin, xmax+stt, stt)
+        ax1 = np.arange(xmin, xmax+(stt / 10), stt / 10)
         n, xbin = np.histogram(error, bins=nbins)
         n[0] = 0
         n[1] = 0
