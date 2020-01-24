@@ -52,17 +52,17 @@ class Calculator:
         stt = (xmax - xmin) / nbins
         ax = np.arange(xmin, xmax+stt, stt)
         ax1 = np.arange(xmin, xmax+(stt / 10), stt / 10)
+        ax1 = ax1[:-1]
         n, xbin = np.histogram(error, bins=nbins)
         n[0] = 0
-        n[1] = 0
-        n[nbins - 2] = 0
-        n[nbins - 3] = 0
+        n[-1] = 0
         rr1 = norm.pdf(ax, mu, st)
         rangex = xmax - xmin
         binwidth = rangex / nbins
-        row = 0
-        for item in loop_error:
-            row += item > 0
+        err_tmp = [float(item) for item in loop_error]
+        nans = np.isnan(err_tmp)
+        nans = np.invert(nans)
+        row = np.sum(nans)
         rr1n = row * (rr1 * binwidth)
         rr1 = norm.pdf(ax1, mu, st)
         rr1n = row * (rr1 * binwidth)
@@ -96,7 +96,6 @@ class Calculator:
         nn, xx = np.histogram(error, bins=ax)
         histX = xx
         histY = nn
-        KK = len(nn)
 
         # kurtoza i skośność
         skewness = skew(error)
